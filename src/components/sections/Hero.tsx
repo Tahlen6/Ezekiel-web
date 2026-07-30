@@ -55,8 +55,13 @@ export function Hero() {
       ref={sectionRef}
       className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden sm:justify-center"
     >
-      {/* The model itself, full bleed. */}
-      <div className="absolute inset-0 -z-20">
+      {/*
+        The model. On a phone it occupies a band above the copy and fades out at
+        its lower edge — full-bleed would centre it behind the headline, where the
+        scrim hides the very thing the section is about. From `sm` up it is full
+        bleed as designed.
+      */}
+      <div className="absolute inset-x-0 top-0 -z-20 h-[42svh] [mask-image:linear-gradient(to_bottom,black_50%,transparent_100%)] sm:inset-0 sm:h-auto sm:[mask-image:none]">
         <GraphCanvas
           getProgress={getAssembly}
           getCamera={getCamera}

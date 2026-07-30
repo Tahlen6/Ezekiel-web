@@ -382,7 +382,15 @@ export function GraphCanvas({
       // Model space is ±1 in x and roughly ±0.9 in y.
       const scaleX = w * 0.46;
       const scaleY = h * 0.5;
-      const baseScale = (p.fit === 'cover' ? Math.max(scaleX, scaleY) : Math.min(scaleX, scaleY)) * zoom;
+      /*
+       * `cover` takes the larger scale so the model bleeds past the frame. In a
+       * tall narrow box — a phone in portrait — the height term dominates so
+       * hard that the model draws several times wider than the canvas and most
+       * of it lands off-screen. The clamp keeps the bleed to something the
+       * viewer can still read as a whole; it never binds on landscape screens.
+       */
+      const cover = Math.min(Math.max(scaleX, scaleY), w * 0.6);
+      const baseScale = (p.fit === 'cover' ? cover : Math.min(scaleX, scaleY)) * zoom;
 
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       ctx.clearRect(0, 0, w, h);

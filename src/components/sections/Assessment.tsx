@@ -70,16 +70,21 @@ function Chip({
   kind,
   meta,
   slow = false,
+  metaClassName = '',
 }: {
   label: string;
   kind: ParsedEntity['kind'];
   meta?: string;
   slow?: boolean;
+  /** e.g. `hidden sm:block` where the meta is too long to carry on a phone. */
+  metaClassName?: string;
 }) {
   const style = KIND_STYLE[kind];
   return (
+    /* Label and meta sit on one line on a phone and stack from `sm` up — halving
+       the chip height is what lets the pinned scene fit a small viewport. */
     <span
-      className="flex flex-col gap-0.5 rounded-lg border bg-raised/90 px-3 py-2"
+      className="flex flex-row flex-wrap items-baseline gap-x-2 rounded-lg border bg-raised/90 px-3 py-2 sm:flex-col sm:items-stretch sm:gap-0.5"
       style={{ borderColor: slow ? 'rgb(242 193 78 / 0.4)' : 'rgb(255 255 255 / 0.1)' }}
     >
       <span className="flex items-center gap-2">
@@ -88,12 +93,12 @@ function Chip({
           className="size-1.5 shrink-0 rounded-full"
           style={{ backgroundColor: slow ? 'var(--color-signal-loss)' : style.colour }}
         />
-        <span className="whitespace-nowrap text-body-sm text-fg">{label}</span>
+        <span className="text-body-sm text-fg sm:whitespace-nowrap">{label}</span>
       </span>
       {meta ? (
         <span
           data-numeric
-          className="pl-3.5 text-[0.6875rem]"
+          className={`text-[0.6875rem] sm:pl-3.5 ${metaClassName}`}
           style={{ color: slow ? 'var(--color-signal-loss)' : 'var(--color-fg-3)' }}
         >
           {meta}
@@ -103,12 +108,72 @@ function Chip({
   );
 }
 
+/**
+ * Which blocks are on screen at a given step.
+ *
+ * A pinned pane cannot be scrolled, so anything that does not fit is simply
+ * unreachable — on a phone the scene therefore shows fewer artefacts at once and
+ * hands off from one to the next. The story is identical; the window is smaller.
+ */
+function stageWindow(step: number, compact: boolean) {
+  if (compact) {
+    return {
+      doc: step === 0,
+      objects: step === 1,
+      interview: step === 2,
+      chain: step === 3,
+      systems: step === 4,
+      compare: step === 5,
+      quality: step === 6,
+    };
+  }
+  /* At most two artefacts beside the source document. Measured against a
+     1440x900 screen the heaviest step lands at 426px of a 471px budget; wider
+     windows overflowed the pinned pane by 20-35px. Shorter screens fall back to
+     the single-artefact windows above via `compact`. */
+  return {
+    doc: true,
+    objects: step === 1,
+    interview: step >= 2 && step <= 3,
+    chain: step >= 3 && step <= 4,
+    systems: step === 4,
+    compare: step >= 5 && step <= 6,
+    quality: step === 6,
+  };
+}
+
+/** Systems attach to the steps they actually support. */
+function SupportingSystems() {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-[0.6875rem] uppercase tracking-[0.14em] text-fg-3">
+        Támogató rendszerek
+      </span>
+      <Chip label="ERP" kind="system" meta="igény, szerződés" metaClassName="hidden sm:block" />
+      <Chip
+        label="Excel-nyilvántartás"
+        kind="system"
+        meta="minősítés · nincs verziókövetés"
+        metaClassName="hidden sm:block"
+      />
+      <Chip
+        label="E-mail"
+        kind="system"
+        meta="jóváhagyás · nem auditálható"
+        metaClassName="hidden sm:block"
+      />
+    </div>
+  );
+}
+
 function Stage({ step, compact }: { step: number; compact: boolean }) {
+  const show = stageWindow(step, compact);
+
   return (
     <div className="flex flex-col">
       {/* The source document — the anchor the whole scene grows out of. */}
       <div
-        hidden={compact && step >= 4}
+        hidden={!show.doc}
         className="rounded-xl border border-line bg-raised/70 p-4 transition-opacity duration-[var(--dur-slow)] sm:p-5"
         style={{ opacity: step >= 3 ? 0.5 : 1 }}
       >
@@ -135,7 +200,7 @@ function Stage({ step, compact }: { step: number; compact: boolean }) {
       </div>
 
       {/* Extracted objects */}
-      <Collapse open={step >= 1 && step <= 2}>
+      <Collapse open={show.objects}>
         <div className="rounded-xl border border-line bg-raised/70 p-4 sm:p-5">
           <p className="text-eyebrow uppercase text-fg-3">Kinyert objektumok</p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -145,6 +210,7 @@ function Stage({ step, compact }: { step: number; compact: boolean }) {
                   label={entity.label}
                   kind={entity.kind}
                   meta={KIND_STYLE[entity.kind].label}
+                  metaClassName="hidden sm:block"
                 />
               </CollapseItem>
             ))}
@@ -153,7 +219,7 @@ function Stage({ step, compact }: { step: number; compact: boolean }) {
       </Collapse>
 
       {/* What the interview adds that the policy does not say */}
-      <Collapse open={step >= 2 && step <= 3}>
+      <Collapse open={show.interview}>
         <blockquote className="rounded-xl border border-line-blue bg-blue-500/[0.07] p-4 sm:p-5">
           <p className="text-eyebrow uppercase text-blue-300">Interjú · beszerzési vezető</p>
           <p className="mt-2.5 text-body text-fg">
@@ -166,44 +232,77 @@ function Stage({ step, compact }: { step: number; compact: boolean }) {
       </Collapse>
 
       {/* The measured chain */}
-      <Collapse open={step >= 3 && step <= 5}>
+      <Collapse open={show.chain}>
         <div className="rounded-xl border border-line bg-raised/70 p-4 sm:p-5">
           <p className="text-eyebrow uppercase text-fg-3">Folyamat · mért lépések</p>
-          <ol className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:items-stretch sm:gap-0">
-            {CHAIN.map((node, i) => (
-              <li key={node.label} className="flex items-center gap-2 sm:flex-1">
-                <CollapseItem index={i}>
-                  <Chip label={node.label} kind={node.kind} meta={node.meta} slow={node.slow} />
-                </CollapseItem>
-                {i < CHAIN.length - 1 ? (
-                  <span aria-hidden="true" className="hidden flex-1 sm:block">
-                    <span className="block h-px bg-line-blue" />
+          {/*
+            The sequence has to be legible as a sequence. A two-column grid of
+            chips reads as an unordered set — the reader cannot tell that these
+            are four consecutive steps, which is the whole point of the section.
+            On a phone it becomes a numbered vertical flow with a connecting rail;
+            from `sm` up the horizontal chain has room to carry the order itself.
+          */}
+          <ol className="mt-3 flex flex-col sm:flex-row sm:items-stretch">
+            {CHAIN.map((node, i) => {
+              const isLast = i === CHAIN.length - 1;
+              return (
+                <li
+                  key={node.label}
+                  className="relative flex items-start gap-3 pb-3 last:pb-0 sm:flex-1 sm:items-center sm:gap-2 sm:pb-0"
+                >
+                  {/* Vertical rail between steps — mobile only. */}
+                  {!isLast ? (
+                    <span
+                      aria-hidden="true"
+                      className="absolute bottom-0 left-[0.6875rem] top-6 w-px bg-line-blue sm:hidden"
+                    />
+                  ) : null}
+
+                  {/* Step ordinal. The <ol> carries the order for assistive tech. */}
+                  <span
+                    aria-hidden="true"
+                    data-numeric
+                    className="relative z-10 flex size-[1.375rem] shrink-0 items-center justify-center rounded-full border border-line-blue bg-base text-[0.625rem] text-blue-300 sm:hidden"
+                  >
+                    {i + 1}
                   </span>
-                ) : null}
-              </li>
-            ))}
+
+                  <CollapseItem index={i} className="min-w-0 flex-1 sm:flex-none">
+                    <Chip label={node.label} kind={node.kind} meta={node.meta} slow={node.slow} />
+                  </CollapseItem>
+
+                  {!isLast ? (
+                    <span aria-hidden="true" className="hidden flex-1 sm:block">
+                      <span className="block h-px bg-line-blue" />
+                    </span>
+                  ) : null}
+                </li>
+              );
+            })}
           </ol>
 
-          {/* Systems attach to the steps they actually support */}
-          <Collapse open={step >= 4}>
-            <div className="flex flex-wrap items-center gap-2 border-t border-line-subtle pt-4">
-              <span className="text-[0.6875rem] uppercase tracking-[0.14em] text-fg-3">
-                Támogató rendszerek
-              </span>
-              <Chip label="ERP" kind="system" meta="igény, szerződés" />
-              <Chip
-                label="Excel-nyilvántartás"
-                kind="system"
-                meta="minősítés · nincs verziókövetés"
-              />
-              <Chip label="E-mail" kind="system" meta="jóváhagyás · nem auditálható" />
-            </div>
-          </Collapse>
+          {/* Desktop: attached under the chain, where it belongs visually. */}
+          <div className="hidden sm:block">
+            <Collapse open={show.systems}>
+              <div className="border-t border-line-subtle pt-4">
+                <SupportingSystems />
+              </div>
+            </Collapse>
+          </div>
         </div>
       </Collapse>
 
+      {/* Mobile: its own step, so a phone never has to fit two artefacts at once. */}
+      <div className="sm:hidden">
+        <Collapse open={show.systems}>
+          <div className="rounded-xl border border-line bg-raised/70 p-4">
+            <SupportingSystems />
+          </div>
+        </Collapse>
+      </div>
+
       {/* Documented vs actual — the divergence becomes the finding */}
-      <Collapse open={step >= 5}>
+      <Collapse open={show.compare}>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-line bg-raised/70 p-4">
             <p className="text-eyebrow uppercase text-fg-3">Dokumentált</p>
@@ -221,7 +320,7 @@ function Stage({ step, compact }: { step: number; compact: boolean }) {
       </Collapse>
 
       {/* Evidence and confidence */}
-      <Collapse open={step >= 6}>
+      <Collapse open={show.quality}>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-line bg-overlay/70 p-4 sm:p-5">
           <span className="flex items-center gap-2 text-body-sm text-fg-2">
             <CertaintyMeter certainty="high" />
@@ -316,7 +415,9 @@ export function Assessment() {
                       style={{ width: `${((step + 1) / ASSESSMENT_STEPS.length) * 100}%` }}
                     />
                   </div>
-                  <p className="mt-3 text-[0.8125rem] leading-relaxed text-fg-3">{current.body}</p>
+                  <p className="mt-3 text-[0.8125rem] leading-relaxed text-fg-3 [@media(max-height:700px)]:hidden">
+                    {current.body}
+                  </p>
                 </div>
               </div>
 
