@@ -1,0 +1,25 @@
+{
+  "name": "ezekiel-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ezekiel \u2014 v\u00e1llalati diagnosztikai \u00e9s szervezeti intelligenciaplatform. Hivatalos weboldal.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "16.2.12",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.19.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
+  }
+}

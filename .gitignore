@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+build/
+.env
+.env.local
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+npm-debug.log*
+
+# Local Claude Code permission state — machine-specific, not project config.
+.claude/settings.local.json
