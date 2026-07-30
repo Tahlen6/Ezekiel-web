@@ -26,12 +26,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Turns Pages on for the repository and sets the source to GitHub Actions,
-      # so the deploy job has somewhere to publish to. Without this the first run
-      # fails at deploy-pages with "Get Pages site failed" until someone flips the
-      # switch by hand in Settings → Pages.
-      - name: Configure Pages
+      # Opportunistically turns Pages on. GITHUB_TOKEN is not always allowed to do
+      # this — when it is not, Pages has to be enabled once by hand under
+      # Settings → Pages → Source = GitHub Actions. Either way this step must not
+      # block the build, hence continue-on-error: the artifact still gets produced
+      # and uploaded, so a re-run deploys as soon as Pages exists.
+      - name: Configure Pages (best effort)
         uses: actions/configure-pages@v5
+        continue-on-error: true
         with:
           enablement: true
 
