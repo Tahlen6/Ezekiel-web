@@ -26,6 +26,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Turns Pages on for the repository and sets the source to GitHub Actions,
+      # so the deploy job has somewhere to publish to. Without this the first run
+      # fails at deploy-pages with "Get Pages site failed" until someone flips the
+      # switch by hand in Settings → Pages.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
