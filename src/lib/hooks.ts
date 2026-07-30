@@ -50,7 +50,26 @@ export function useDensity(): Density {
  * Must stay in sync with the `short` variant in globals.css.
  */
 export function useShortViewport(): boolean {
-  return useMediaQuery('(max-height: 820px)');
+  return useMediaQuery('(max-height: 880px)');
+}
+
+/**
+ * Too little height to build a scene up. Distinct from `useShortViewport`: that
+ * one only trims secondary copy, while this one changes how many artefacts a
+ * scrollytelling stage shows at once — a much heavier degradation.
+ *
+ * The threshold comes from measurement, not taste: the assessment stage needs
+ * ~426px for its heaviest step, and a desktop-width viewport yields roughly
+ * `height - 248px` of room, so anything above ~700px fits comfortably.
+ */
+export function useCompactStage(): boolean {
+  const mobile = useMediaQuery('(max-width: 639px)');
+  // Any desktop-width screen below this cannot hold the heaviest step.
+  const short = useMediaQuery('(max-height: 759px)');
+  // Narrower columns wrap more, so the same blocks grow ~25px taller and the
+  // headline takes a second line — measured 451px of a 430px budget at 1024x720.
+  const narrowAndShort = useMediaQuery('(max-width: 1279px) and (max-height: 819px)');
+  return mobile || short || narrowAndShort;
 }
 
 /** Coarse pointer — used to widen hit targets and skip hover-only affordances. */

@@ -99,10 +99,16 @@
   unscrollable and it collides with what follows.
 
   `tall`  — enough room to pin a side panel (the tallest remaining one needs 672px).
-  `short` — laptop-height and below: drop secondary copy so sticky scenes still fit.
+  `short` — drop secondary copy so pinned scenes still fit.
+
+  The `short` threshold is 880px, not a rounder number, because the section
+  intro costs ~180px of header: below that height, showing it leaves the
+  assessment stage with less room than a *shorter* viewport has. Measured, the
+  budget dipped from 443px at 760px tall to 401px at 830px — non-monotonic, and
+  it clipped. Keep this in sync with `useShortViewport`.
 */
 @custom-variant tall (@media (min-height: 700px));
-@custom-variant short (@media (max-height: 820px));
+@custom-variant short (@media (max-height: 880px));
 
 @layer theme {
   :root {

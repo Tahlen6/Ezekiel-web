@@ -11,7 +11,7 @@ import { Collapse, CollapseItem } from '@/components/ui/Collapse';
 import { Reveal } from '@/components/ui/Reveal';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { CertaintyMeter } from '@/components/ui/Signal';
-import { useDensity, useShortViewport } from '@/lib/hooks';
+import { useCompactStage } from '@/lib/hooks';
 import { useScrollStep } from '@/lib/scroll';
 
 /**
@@ -127,10 +127,10 @@ function stageWindow(step: number, compact: boolean) {
       quality: step === 6,
     };
   }
-  /* At most two artefacts beside the source document. Measured against a
-     1440x900 screen the heaviest step lands at 426px of a 471px budget; wider
-     windows overflowed the pinned pane by 20-35px. Shorter screens fall back to
-     the single-artefact windows above via `compact`. */
+  /* At most two artefacts beside the source document. Measured: the heaviest
+     step is 426px of a 471px budget at 1440x900, and 451px of 430px at
+     1024x720 — which is why `useCompactStage` also has a width term. Screens
+     that cannot hold this fall back to the single-artefact windows above. */
   return {
     doc: true,
     objects: step === 1,
@@ -337,8 +337,7 @@ function Stage({ step, compact }: { step: number; compact: boolean }) {
 
 export function Assessment() {
   const trackRef = useRef<HTMLDivElement>(null);
-  const density = useDensity();
-  const short = useShortViewport();
+  const compact = useCompactStage();
   const { step } = useScrollStep(trackRef, ASSESSMENT_STEPS.length);
   const current = ASSESSMENT_STEPS[step] ?? ASSESSMENT_STEPS[0]!;
 
@@ -422,7 +421,7 @@ export function Assessment() {
               </div>
 
               <Reveal>
-                <Stage step={step} compact={density === 'mobile' || short} />
+                <Stage step={step} compact={compact} />
               </Reveal>
             </div>
           </div>
