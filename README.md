@@ -19,44 +19,6 @@ npm run dev
 | `npm run build` | Éles build |
 | `npm start` | Éles szerver |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run build:pages` | Statikus export a GitHub Pages előnézethez (`out/`) |
-
-## GitHub Pages előnézet
-
-Az oldal megnézhető statikus előnézetként:
-**https://tahlen6.github.io/Ezekiel-web/**
-
-A deploy a [`.github/workflows/pages.yml`](.github/workflows/pages.yml) workflow-val
-történik, minden `main`-re pusholás után automatikusan.
-
-**Egyszeri beállítás a repóban** (ezt kézzel kell megtenni):
-Settings → Pages → Build and deployment → Source = **GitHub Actions**.
-
-### Mit tud és mit nem az előnézet
-
-A GitHub Pages fájlokat szolgál ki, nem Node szervert. Az előnézet ezért a valódi
-telepítés **szándékos részhalmaza**:
-
-| | Pages előnézet | Éles (Node/Vercel) |
-|---|---|---|
-| Teljes oldal, animációk, interaktív demók | ✅ | ✅ |
-| Kapcsolatfelvételi űrlap elküldése | ❌ közvetlen e-mail-címet mutat | ✅ webhookra továbbít |
-| `/api/kapcsolat` route | kimarad a buildből | ✅ |
-| Biztonsági HTTP-fejlécek | ❌ nem beállíthatók | ✅ |
-| Indexelés | letiltva (`noindex` + `robots.txt`) | engedélyezve |
-
-Az űrlap statikus módban **nem tesz úgy, mintha elküldte volna** – ugyanaz az elv,
-mint a szerver `no_sink` válaszánál: a látogató a közvetlen e-mail-címet kapja.
-
-A statikus mód csak akkor aktiválódik, ha `EZEKIEL_STATIC_EXPORT=1`; a normál
-`npm run build` érintetlen. Az env-változók:
-
-| Változó | Mire jó |
-|---|---|
-| `EZEKIEL_STATIC_EXPORT=1` | `output: 'export'` bekapcsolása |
-| `EZEKIEL_BASE_PATH=/Ezekiel-web` | Projekt-oldal alkönyvtára (assetek, linkek) |
-| `NEXT_PUBLIC_STATIC_DEMO=1` | Űrlap-fallback + `noindex` |
-| `NEXT_PUBLIC_SITE_URL` | Kanonikus URL a metaadatokhoz |
 
 ## Élesítés Vercelre
 
@@ -118,8 +80,8 @@ Az oldal figyelmeztető sávot is megjelenít, amíg ez nincs kitöltve.
 
 ### Ami magától jó lesz
 
-- **Indexelés**: az előnézeten `noindex` van, éles buildben nincs — a
-  `NEXT_PUBLIC_STATIC_DEMO`-hoz kötött, amit csak a Pages workflow állít be.
+- **Indexelés**: az éles build indexelhető. A Vercel a preview-deployokra
+  magától `noindex` fejlécet tesz, tehát azok nem kerülnek a keresőkbe.
 - **Biztonsági fejlécek**: a szerveres buildben aktívak.
 - **Sütibanner**: nincs rá szükség, mert nincs analitika és nincs nyomkövetés.
   Ha később mérést teszel be, a tájékoztatót és a bannert is pótolni kell.

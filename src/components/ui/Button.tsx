@@ -57,9 +57,8 @@ function Arrow() {
 }
 
 /**
- * Uses next/link rather than a bare anchor so that absolute hrefs pick up the
- * configured basePath — the GitHub Pages preview lives under /Ezekiel-web/, and
- * a hand-written <a href="/..."> would escape it.
+ * Uses next/link rather than a bare anchor so that absolute hrefs pick up any
+ * configured basePath, which a hand-written <a href="/..."> would escape.
  */
 export function ButtonLink({
   variant = 'primary',

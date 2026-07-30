@@ -7,8 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit",
-    "build:pages": "EZEKIEL_STATIC_EXPORT=1 EZEKIEL_BASE_PATH=/Ezekiel-web NEXT_PUBLIC_STATIC_DEMO=1 EZEKIEL_DIST_DIR=out next build"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "next": "16.2.12",
