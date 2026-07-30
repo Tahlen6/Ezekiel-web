@@ -18,6 +18,15 @@ const nextConfig: NextConfig = {
   // A stray lockfile in the home directory makes Next infer the wrong workspace
   // root; pin it to this project.
   turbopack: { root: path.resolve(import.meta.dirname) },
+
+  /*
+   * `next build` and `next dev` share `.next` by default, so a build run while a
+   * dev server is up deletes the files that server is reading and leaves it
+   * hung. The static-export build sets this to `out` instead, which is both the
+   * published directory and somewhere the dev server never reads — so a Pages
+   * build can run alongside `npm run dev` safely.
+   */
+  distDir: process.env.EZEKIEL_DIST_DIR ?? '.next',
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,

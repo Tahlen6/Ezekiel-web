@@ -50,6 +50,8 @@ jobs:
           # Derived from the repo so a rename cannot silently break every asset path.
           EZEKIEL_BASE_PATH: /${{ github.event.repository.name }}
           NEXT_PUBLIC_STATIC_DEMO: '1'
+          # Keeps the export out of `.next`; also the directory we publish.
+          EZEKIEL_DIST_DIR: out
           NEXT_PUBLIC_SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
         run: npm run build
 
