@@ -54,22 +54,29 @@ export function useShortViewport(): boolean {
 }
 
 /**
- * Too little height to build a scene up. Distinct from `useShortViewport`: that
- * one only trims secondary copy, while this one changes how many artefacts a
- * scrollytelling stage shows at once — a much heavier degradation.
+ * How much of a scrollytelling scene fits at once.
  *
- * The threshold comes from measurement, not taste: the assessment stage needs
- * ~426px for its heaviest step, and a desktop-width viewport yields roughly
- * `height - 248px` of room, so anything above ~700px fits comfortably.
+ * `full`     — the source document plus up to two artefacts.
+ * `anchored` — the document plus one artefact. For wide but short screens: the
+ *              document is only ~120px and it is what every other block refers
+ *              back to, so dropping it leaves a lone card floating in a wide
+ *              empty column. Keeping it costs little and preserves the context.
+ * `minimal`  — one artefact. Phones only, where even the document plus one
+ *              block overruns the budget (440px needed, 364px available at
+ *              375x667).
+ *
+ * Thresholds are measured, not chosen: `full` needs ~426px of stage, which a
+ * 1280px-wide viewport provides from 760px tall and a narrower one from 820px.
  */
-export function useCompactStage(): boolean {
-  const mobile = useMediaQuery('(max-width: 639px)');
-  // Any desktop-width screen below this cannot hold the heaviest step.
-  const short = useMediaQuery('(max-height: 759px)');
-  // Narrower columns wrap more, so the same blocks grow ~25px taller and the
-  // headline takes a second line — measured 451px of a 430px budget at 1024x720.
-  const narrowAndShort = useMediaQuery('(max-width: 1279px) and (max-height: 819px)');
-  return mobile || short || narrowAndShort;
+export type StageMode = 'full' | 'anchored' | 'minimal';
+
+export function useStageMode(): StageMode {
+  const phone = useMediaQuery('(max-width: 639px)');
+  const roomyWide = useMediaQuery('(min-width: 1280px) and (min-height: 760px)');
+  const roomyTall = useMediaQuery('(min-height: 820px)');
+
+  if (phone) return 'minimal';
+  return roomyWide || roomyTall ? 'full' : 'anchored';
 }
 
 /** Coarse pointer — used to widen hit targets and skip hover-only affordances. */

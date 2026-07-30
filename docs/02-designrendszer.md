@@ -146,25 +146,24 @@ A pinnelt panel nem görgethető, tehát **a színpad tartalmának budget-je van
 csak a panelnek. Mérve (375×812): a fejléc, a lépésjelző és a térközök 274px-et
 esznek, a vizuálra 434px marad; egy 667px magas telefonon 364px.
 
-Ezért a felmérési szekció nem halmozza a blokkokat, hanem **ablakot** használ:
+Ezért a felmérési szekció nem halmozza a blokkokat, hanem **ablakot** használ –
+három fokozatban:
 
-| | Egyszerre látható artefaktum | Legnagyobb lépés |
+| Mód | Mikor | Egyszerre látható |
 |---|---|---|
-| Mobil, vagy ≤759px magas, vagy <1280px széles és ≤819px magas | **1** | 279px |
-| Minden más | 2 + a forrásdokumentum | 426px (443–640px büdzséből) |
+| `full` | ≥1280px széles és ≥760px magas, vagy ≥820px magas | forrásdokumentum + 2 artefaktum |
+| `anchored` | minden más asztali méret | forrásdokumentum + 1 artefaktum |
+| `minimal` | <640px széles (telefon) | 1 artefaktum |
+
+**A forrásdokumentum csak telefonon esik ki.** Ez ~120px, viszont minden más blokk
+rá hivatkozik – nélküle egy magányos kártya lebeg egy széles, üres hasábban. Egy
+1280×720-as laptopon ezért `anchored` fut, nem `minimal`: a dokumentum marad, és
+mellette egyszerre egy artefaktum. Telefonon a büdzsé ezt sem engedi (440px
+kellene, 364px van egy 375×667-es kijelzőn).
 
 **A tömörítés küszöbe nem azonos a szövegritkításéval.** A szövegritkítás olcsó
-(egy bekezdés tűnik el), a tömörítés drága: eltűnik a forrásdokumentum, amire az
-egész jelenet épül, és a blokkok egyesével váltják egymást ahelyett, hogy
-egymásra épülnének. Ezt csak akkor szabad bekapcsolni, ha tényleg nem fér el –
-egy 1440×760-as laptopon például elfér (426px a 443px-ből).
-
-**A szélesség is számít, nem csak a magasság.** Keskenyebb hasábban a blokkok
-~25px-szel magasabbak és a címsor két sorba tör: 1024×720-on 451px kellene a
-430px-es büdzséből. Ezért van a küszöbben szélességi tag is.
-
-Amelyik blokk nem fér be egyedül sem, az külön lépést kap – így került a
-„támogató rendszerek" mobilon a lánc mellől saját lépésbe.
+(egy bekezdés tűnik el), a tömörítés drága: megszűnik a jelenet horgonya, és a
+blokkok egyesével váltják egymást ahelyett, hogy egymásra épülnének.
 
 **A `scrollHeight` nem használható erre az ellenőrzésre.** Flex-konténerben a
 túlnyúló gyerek nem növeli a szülő `scrollHeight`-ját, ezért egy scrollHeight-alapú

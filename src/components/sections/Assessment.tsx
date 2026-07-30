@@ -11,7 +11,7 @@ import { Collapse, CollapseItem } from '@/components/ui/Collapse';
 import { Reveal } from '@/components/ui/Reveal';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { CertaintyMeter } from '@/components/ui/Signal';
-import { useCompactStage } from '@/lib/hooks';
+import { useStageMode, type StageMode } from '@/lib/hooks';
 import { useScrollStep } from '@/lib/scroll';
 
 /**
@@ -115,8 +115,8 @@ function Chip({
  * unreachable — on a phone the scene therefore shows fewer artefacts at once and
  * hands off from one to the next. The story is identical; the window is smaller.
  */
-function stageWindow(step: number, compact: boolean) {
-  if (compact) {
+function stageWindow(step: number, mode: StageMode) {
+  if (mode === 'minimal') {
     return {
       doc: step === 0,
       objects: step === 1,
@@ -127,10 +127,23 @@ function stageWindow(step: number, compact: boolean) {
       quality: step === 6,
     };
   }
+
+  /* One artefact at a time, but the source document stays put as the anchor —
+     peaks at 378px against a ~408px budget on a 1280x720 laptop. */
+  if (mode === 'anchored') {
+    return {
+      doc: true,
+      objects: step === 1,
+      interview: step === 2,
+      chain: step >= 3 && step <= 4,
+      systems: step === 4,
+      compare: step === 5,
+      quality: step === 6,
+    };
+  }
+
   /* At most two artefacts beside the source document. Measured: the heaviest
-     step is 426px of a 471px budget at 1440x900, and 451px of 430px at
-     1024x720 — which is why `useCompactStage` also has a width term. Screens
-     that cannot hold this fall back to the single-artefact windows above. */
+     step is 426px of a 471px budget at 1440x900. */
   return {
     doc: true,
     objects: step === 1,
@@ -166,8 +179,8 @@ function SupportingSystems() {
   );
 }
 
-function Stage({ step, compact }: { step: number; compact: boolean }) {
-  const show = stageWindow(step, compact);
+function Stage({ step, mode }: { step: number; mode: StageMode }) {
+  const show = stageWindow(step, mode);
 
   return (
     <div className="flex flex-col">
@@ -337,7 +350,7 @@ function Stage({ step, compact }: { step: number; compact: boolean }) {
 
 export function Assessment() {
   const trackRef = useRef<HTMLDivElement>(null);
-  const compact = useCompactStage();
+  const mode = useStageMode();
   const { step } = useScrollStep(trackRef, ASSESSMENT_STEPS.length);
   const current = ASSESSMENT_STEPS[step] ?? ASSESSMENT_STEPS[0]!;
 
@@ -421,7 +434,7 @@ export function Assessment() {
               </div>
 
               <Reveal>
-                <Stage step={step} compact={compact} />
+                <Stage step={step} mode={mode} />
               </Reveal>
             </div>
           </div>
