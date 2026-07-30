@@ -133,6 +133,44 @@ Két szabály, mindkettő kötelező:
    varianton (`@media (max-height: 820px)`) a szekcióbevezető és a lépésleírás
    eltűnik, a felmérési színpad pedig kevesebb blokkot tart egyszerre.
 
+### Kitűzött színpad: egy lépés, egy artefaktum
+
+A pinnelt panel nem görgethető, tehát **a színpad tartalmának budget-je van**, nem
+csak a panelnek. Mérve (375×812): a fejléc, a lépésjelző és a térközök 274px-et
+esznek, a vizuálra 434px marad; egy 667px magas telefonon 364px.
+
+Ezért a felmérési szekció nem halmozza a blokkokat, hanem **ablakot** használ:
+
+| | Egyszerre látható artefaktum | Legnagyobb lépés |
+|---|---|---|
+| Mobil / rövid képernyő | **1** | 279px |
+| Desktop (≥820px magas) | 2 + a forrásdokumentum | 426px (471px büdzséből) |
+
+Amelyik blokk nem fér be egyedül sem, az külön lépést kap – így került a
+„támogató rendszerek" mobilon a lánc mellől saját lépésbe.
+
+**A `scrollHeight` nem használható erre az ellenőrzésre.** Flex-konténerben a
+túlnyúló gyerek nem növeli a szülő `scrollHeight`-ját, ezért egy scrollHeight-alapú
+vizsgálat nulla problémát jelez ott is, ahol 177px elérhetetlen. Blokkonként a
+panel alsó széléhez kell hasonlítani.
+
+### Sorozat csak akkor sorozat, ha látszik a sorrend
+
+A folyamatlánc mobilon 2×2-es rácsban állt, sorszám és összekötő nélkül – négy
+egymás mellé tett kártyaként olvasódott, nem négy egymást követő lépésként.
+Szabály: **ahol a sorrend az információ, ott vizuális sorrendjelzés kell** –
+sorszám és összekötő –, nem elég a DOM-sorrend vagy a balról jobbra olvasás.
+
+### `cover` illesztés portrait nézetben
+
+A `cover` a nagyobb méretet választja, hogy a vizuál túlfolyjon a kereten. Magas és
+keskeny dobozban (telefon portrait) viszont a magasságból számolt méret annyira
+dominál, hogy a modell a vászon többszörösére nagyul, és nagy része kikerül a
+képből: a hero 943px széles modellt rajzolt egy 375px-es vászonra.
+
+Szabály: a `cover` mérete a **vászon szélességéhez korlátozva** (`≤ w * 0.6`).
+Fekvő képernyőn nem aktiválódik, tehát a desktop látvány változatlan.
+
 **Geometria méretből, ne százalékból.** A problémafelvetés gyűrűje fix 30%-os
 y-rádiusszal indult. Ugyanez a 30% egy magas monitoron 134px térköz, egy laptopon
 50px – miközben a kártyák ugyanolyan magasak maradnak, tehát összecsúsznak. A rádiuszt
