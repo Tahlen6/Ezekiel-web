@@ -6,15 +6,7 @@ import { GraphCanvas } from '@/components/graph/GraphCanvas';
 import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 import { useScrollProgressGetter } from '@/lib/scroll';
-
-const CONTACT_EMAIL = 'kapcsolat@ezekiel.hu';
-
-/**
- * Static preview builds (GitHub Pages) have no route handler behind them, so the
- * form says so up front instead of firing a request that can only 404. Same
- * principle as the server's `no_sink` response: never look like it was sent.
- */
-const IS_STATIC_DEMO = process.env.NEXT_PUBLIC_STATIC_DEMO === '1';
+import { CONTACT_EMAIL, IS_STATIC_DEMO } from '@/lib/site';
 
 type Interest = 'bemutato' | 'pilot';
 type Status = 'idle' | 'sending' | 'sent' | 'no_sink' | 'error';

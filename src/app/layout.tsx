@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import { IS_STATIC_DEMO, SITE_URL } from '@/lib/site';
 import './globals.css';
 
 /**
@@ -14,10 +15,6 @@ const inter = Inter({
   axes: ['opsz'],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ezekiel.hu';
-
-/** Static preview deployment: real content, placeholder details, keep it out of search. */
-const IS_STATIC_DEMO = process.env.NEXT_PUBLIC_STATIC_DEMO === '1';
 
 const DESCRIPTION =
   'Az Ezekiel összekapcsolja a folyamatokat, szerepköröket, rendszereket, ' +

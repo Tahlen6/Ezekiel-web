@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { NAV_ITEMS } from '@/data/content';
 import { Wordmark } from '@/components/ui/Wordmark';
+import { CONTACT_EMAIL } from '@/lib/site';
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -45,10 +46,10 @@ export function SiteFooter() {
               </li>
               <li>
                 <a
-                  href="mailto:kapcsolat@ezekiel.hu"
+                  href={`mailto:${CONTACT_EMAIL}`}
                   className="text-body-sm text-fg-2 transition-colors duration-[var(--dur-fast)] hover:text-fg"
                 >
-                  kapcsolat@ezekiel.hu
+                  {CONTACT_EMAIL}
                 </a>
               </li>
               <li>

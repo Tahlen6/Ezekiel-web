@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { SiteNav } from '@/components/layout/SiteNav';
 import { SiteFooter } from '@/components/layout/SiteFooter';
+import { PRIVACY_EMAIL, SITE_DOMAIN } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Adatvédelmi tájékoztató',
   description:
-    'Tájékoztatás az ezekiel.hu weboldalon megadott személyes adatok kezeléséről: milyen adatot kezelünk, milyen célból, mennyi ideig, és milyen jogok illetnek meg.',
+    `Tájékoztatás a(z) ${SITE_DOMAIN} weboldalon megadott személyes adatok kezeléséről: milyen adatot kezelünk, milyen célból, mennyi ideig, és milyen jogok illetnek meg.`,
   robots: { index: true, follow: true },
 };
 
@@ -29,8 +30,8 @@ export default function PrivacyPage() {
             Adatvédelmi tájékoztató
           </h1>
           <p className="mt-6 text-lead text-fg-2">
-            Ez a tájékoztató azt írja le, hogyan kezeljük az ezekiel.hu weboldalon megadott
-            személyes adatokat.
+            Ez a tájékoztató azt írja le, hogyan kezeljük a(z) {SITE_DOMAIN} weboldalon
+            megadott személyes adatokat.
           </p>
 
           <div
@@ -51,10 +52,10 @@ export default function PrivacyPage() {
               Adatkezelő: <Blank /> (székhely: <Blank />, nyilvántartási szám: <Blank />).
               Adatvédelmi kérdésekben elérhetőségünk:{' '}
               <a
-                href="mailto:adatvedelem@ezekiel.hu"
+                href={`mailto:${PRIVACY_EMAIL}`}
                 className="text-blue-300 underline decoration-line-blue underline-offset-2"
               >
-                adatvedelem@ezekiel.hu
+                {PRIVACY_EMAIL}
               </a>
               .
             </p>
@@ -135,10 +136,10 @@ export default function PrivacyPage() {
             <p>
               Kérésedet az{' '}
               <a
-                href="mailto:adatvedelem@ezekiel.hu"
+                href={`mailto:${PRIVACY_EMAIL}`}
                 className="text-blue-300 underline decoration-line-blue underline-offset-2"
               >
-                adatvedelem@ezekiel.hu
+                {PRIVACY_EMAIL}
               </a>{' '}
               címen jelezheted; 30 napon belül válaszolunk.
             </p>

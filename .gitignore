@@ -12,3 +12,4 @@ npm-debug.log*
 
 # Local Claude Code permission state — machine-specific, not project config.
 .claude/settings.local.json
+.next-test/

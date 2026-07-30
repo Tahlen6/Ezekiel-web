@@ -58,20 +58,78 @@ A statikus mód csak akkor aktiválódik, ha `EZEKIEL_STATIC_EXPORT=1`; a normá
 | `NEXT_PUBLIC_STATIC_DEMO=1` | Űrlap-fallback + `noindex` |
 | `NEXT_PUBLIC_SITE_URL` | Kanonikus URL a metaadatokhoz |
 
-## Élesítés előtt kötelező
+## Élesítés Vercelre
 
-1. **`EZEKIEL_LEAD_WEBHOOK`** — a kapcsolatfelvételi űrlap célpontja. Lásd
-   [`.env.example`](.env.example). Amíg nincs beállítva, a `/api/kapcsolat` végpont
-   `503 no_sink` választ ad, és az űrlap a közvetlen e-mail-címet mutatja a
-   látogatónak. Ez szándékos: egy űrlap, amely látszólag elküldi az adatot, de
-   sehova nem juttatja el, rosszabb, mint ha nem lenne űrlap.
-2. **Adatvédelmi tájékoztató** — a [`/adatvedelem`](src/app/adatvedelem/page.tsx)
-   oldalon az adatkezelő megnevezése és az adatfeldolgozók listája „kitöltendő"
-   jelöléssel szerepel. Ezek jogi adatok, nem vezethetők le a kódból.
-3. **Domain** — a `SITE_URL` három helyen szerepel: [`layout.tsx`](src/app/layout.tsx),
-   [`sitemap.ts`](src/app/sitemap.ts), [`robots.ts`](src/app/robots.ts).
-4. **Kapcsolati e-mail-címek** — `kapcsolat@ezekiel.hu` és `adatvedelem@ezekiel.hu`
-   szerepel a lábléc, a záró szekció és az adatvédelmi oldal szövegében.
+Sorrendben. Az 1–3. lépés után az oldal él a saját domaineden; a 4. teszi
+működővé az űrlapot; az 5. jogi kötelezettség.
+
+### 1. Vercel-projekt
+
+1. [vercel.com](https://vercel.com) → **Add New → Project** → a GitHub-repó
+   importálása. A Next.js-t magától felismeri, build-parancsot ne állíts át.
+2. Deploy. Kapsz egy `*.vercel.app` címet — ezen már minden működik az űrlap
+   kivételével.
+
+### 2. Domain rákötése
+
+Vercel → **Settings → Domains** → add hozzá a domained. A Vercel megmutatja a
+szükséges DNS-rekordot (általában egy `A` a csúcsdomainhez és egy `CNAME` a
+`www`-hez). A TLS-tanúsítványt magától kezeli.
+
+### 3. Környezeti változók
+
+Vercel → **Settings → Environment Variables**. A teljes lista magyarázattal:
+[`.env.example`](.env.example). Minimum:
+
+| Változó | Érték |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | `https://<a-domained>` — záró perjel nélkül |
+| `NEXT_PUBLIC_CONTACT_EMAIL` | ahol elérnek |
+| `NEXT_PUBLIC_PRIVACY_EMAIL` | adatvédelmi megkeresésekre |
+
+Ezek után **újra kell deployolni**, hogy beépüljenek.
+
+### 4. Az űrlap bekötése
+
+Két út; elég az egyik. Amíg egyik sincs, a `/api/kapcsolat` `503 no_sink`
+választ ad, és az űrlap a közvetlen e-mail-címet mutatja — szándékosan, hogy
+egyetlen megkeresés se vesszen el csendben.
+
+**E-mail (Resend)** — ez az egyszerűbb, ha nincs CRM-ed:
+
+1. [resend.com](https://resend.com) → regisztráció → **API Keys** → új kulcs.
+2. Vercelen: `RESEND_API_KEY` = a kulcs, `EZEKIEL_LEAD_TO` = a postafiókod.
+3. Ezzel már működik, `onboarding@resend.dev` feladóval — de az csak a Resend-
+   fiókod saját címére kézbesít.
+4. Saját feladóhoz: Resend → **Domains** → a domain hozzáadása → a kiírt
+   DNS-rekordok felvétele. Utána `EZEKIEL_LEAD_FROM` = pl. `noreply@<domained>`.
+
+**Webhook** — ha van CRM-ed vagy automatizálásod: `EZEKIEL_LEAD_WEBHOOK` = a
+végpont URL-je. JSON POST-ot kap. Ha mindkettő be van állítva, az e-mail nyer.
+
+### 5. Adatvédelmi tájékoztató kitöltése
+
+A [`/adatvedelem`](src/app/adatvedelem/page.tsx) oldalon két „kitöltendő" jelölés
+van: az **adatkezelő** megnevezése, székhelye és nyilvántartási száma, valamint
+az igénybe vett **adatfeldolgozók** (Vercel mint hosting, és a Resend, ha azt
+használod). Ezek jogi adatok, nem vezethetők le a kódból.
+
+Az oldal figyelmeztető sávot is megjelenít, amíg ez nincs kitöltve.
+
+### Ami magától jó lesz
+
+- **Indexelés**: az előnézeten `noindex` van, éles buildben nincs — a
+  `NEXT_PUBLIC_STATIC_DEMO`-hoz kötött, amit csak a Pages workflow állít be.
+- **Biztonsági fejlécek**: a szerveres buildben aktívak.
+- **Sütibanner**: nincs rá szükség, mert nincs analitika és nincs nyomkövetés.
+  Ha később mérést teszel be, a tájékoztatót és a bannert is pótolni kell.
+
+### Amit érdemes, de nem blokkol
+
+- Lighthouse-audit éles buildre (a kezdeti JS ~216 kB gzip, ebből ~160 kB a
+  Next + React alap).
+- A példafolyamat számai illusztratívak, és az oldal jelöli is. Ha valós
+  ügyféladatra cserélnéd, a jelölést is át kell írni.
 
 ## Tervezési dokumentáció
 
