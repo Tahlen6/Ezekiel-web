@@ -130,8 +130,15 @@ Két szabály, mindkettő kötelező:
 2. **A kitűzött scrollszínpad tartalma nem múlhatja meg a viewportot.** A pinnelt
    panelből nem lehet kigörgetni, tehát ami nem fér be, az elérhetetlen. Rövid
    képernyőn ezért a **másodlagos szöveg ad utat, nem a vizuál**: a `short:`
-   varianton (`@media (max-height: 820px)`) a szekcióbevezető és a lépésleírás
+   varianton (`@media (max-height: 880px)`) a szekcióbevezető és a lépésleírás
    eltűnik, a felmérési színpad pedig kevesebb blokkot tart egyszerre.
+
+   **A küszöb 880px, és ez nem kerekítés kérdése.** A szekcióbevezető ~180px
+   fejlécet jelent. 820px-es küszöbbel egy 830px magas ablakban visszatért a
+   bevezető, és ettől *kevesebb* hely maradt, mint egy 760px magas ablakban
+   (401px vs 443px) – tehát a magasabb képernyő vágott. Ha egy elem a küszöb
+   fölött visszatér, a küszöböt oda kell tenni, ahol az az elem **ténylegesen
+   elfér**, nem oda, ahol elvileg „már van hely".
 
 ### Kitűzött színpad: egy lépés, egy artefaktum
 
@@ -143,8 +150,18 @@ Ezért a felmérési szekció nem halmozza a blokkokat, hanem **ablakot** haszn�
 
 | | Egyszerre látható artefaktum | Legnagyobb lépés |
 |---|---|---|
-| Mobil / rövid képernyő | **1** | 279px |
-| Desktop (≥820px magas) | 2 + a forrásdokumentum | 426px (471px büdzséből) |
+| Mobil, vagy ≤759px magas, vagy <1280px széles és ≤819px magas | **1** | 279px |
+| Minden más | 2 + a forrásdokumentum | 426px (443–640px büdzséből) |
+
+**A tömörítés küszöbe nem azonos a szövegritkításéval.** A szövegritkítás olcsó
+(egy bekezdés tűnik el), a tömörítés drága: eltűnik a forrásdokumentum, amire az
+egész jelenet épül, és a blokkok egyesével váltják egymást ahelyett, hogy
+egymásra épülnének. Ezt csak akkor szabad bekapcsolni, ha tényleg nem fér el –
+egy 1440×760-as laptopon például elfér (426px a 443px-ből).
+
+**A szélesség is számít, nem csak a magasság.** Keskenyebb hasábban a blokkok
+~25px-szel magasabbak és a címsor két sorba tör: 1024×720-on 451px kellene a
+430px-es büdzséből. Ezért van a küszöbben szélességi tag is.
 
 Amelyik blokk nem fér be egyedül sem, az külön lépést kap – így került a
 „támogató rendszerek" mobilon a lánc mellől saját lépésbe.
