@@ -14,7 +14,10 @@ const inter = Inter({
   axes: ['opsz'],
 });
 
-const SITE_URL = 'https://ezekiel.hu';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ezekiel.hu';
+
+/** Static preview deployment: real content, placeholder details, keep it out of search. */
+const IS_STATIC_DEMO = process.env.NEXT_PUBLIC_STATIC_DEMO === '1';
 
 const DESCRIPTION =
   'Az Ezekiel összekapcsolja a folyamatokat, szerepköröket, rendszereket, ' +
@@ -57,11 +60,13 @@ export const metadata: Metadata = {
     title: 'Ezekiel — A szervezet digitális modellje',
     description: DESCRIPTION,
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
-  },
+  robots: IS_STATIC_DEMO
+    ? { index: false, follow: false, nocache: true }
+    : {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+      },
   formatDetection: { telephone: false, address: false, email: false },
 };
 

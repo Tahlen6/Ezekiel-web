@@ -1,5 +1,8 @@
 import { ImageResponse } from 'next/og';
 
+/* Generated once at build time, so it works in `output: export` too. */
+export const dynamic = 'force-static';
+
 export const alt = 'Ezekiel — A szervezet digitális modellje';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';

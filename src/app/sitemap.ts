@@ -1,6 +1,10 @@
 import type { MetadataRoute } from 'next';
 
-const SITE_URL = 'https://ezekiel.hu';
+/* Reading env at module scope makes Next treat the route as dynamic; these are
+   static files in every deployment, including `output: export`. */
+export const dynamic = 'force-static';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ezekiel.hu';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

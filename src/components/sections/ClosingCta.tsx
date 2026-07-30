@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useRef, useState } from 'react';
 import { GraphCanvas } from '@/components/graph/GraphCanvas';
 import { Button } from '@/components/ui/Button';
@@ -7,6 +8,13 @@ import { Reveal } from '@/components/ui/Reveal';
 import { useScrollProgressGetter } from '@/lib/scroll';
 
 const CONTACT_EMAIL = 'kapcsolat@ezekiel.hu';
+
+/**
+ * Static preview builds (GitHub Pages) have no route handler behind them, so the
+ * form says so up front instead of firing a request that can only 404. Same
+ * principle as the server's `no_sink` response: never look like it was sent.
+ */
+const IS_STATIC_DEMO = process.env.NEXT_PUBLIC_STATIC_DEMO === '1';
 
 type Interest = 'bemutato' | 'pilot';
 type Status = 'idle' | 'sending' | 'sent' | 'no_sink' | 'error';
@@ -48,6 +56,11 @@ export function ClosingCta() {
 
     setStatus('sending');
     setErrors({});
+
+    if (IS_STATIC_DEMO) {
+      setStatus('no_sink');
+      return;
+    }
 
     try {
       const response = await fetch('/api/kapcsolat', {
@@ -261,12 +274,12 @@ export function ClosingCta() {
                     ) : (
                       <span className="text-fg-3">
                         Az adataidat kizárólag a megkeresés megválaszolására használjuk.{' '}
-                        <a
+                        <Link
                           href="/adatvedelem"
                           className="text-fg-2 underline decoration-line underline-offset-2 hover:text-fg"
                         >
                           Adatvédelmi tájékoztató
-                        </a>
+                        </Link>
                       </span>
                     )}
                   </p>

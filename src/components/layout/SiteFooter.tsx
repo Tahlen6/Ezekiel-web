@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { NAV_ITEMS } from '@/data/content';
 import { Wordmark } from '@/components/ui/Wordmark';
 
@@ -51,12 +52,12 @@ export function SiteFooter() {
                 </a>
               </li>
               <li>
-                <a
+                <Link
                   href="/adatvedelem"
                   className="text-body-sm text-fg-2 transition-colors duration-[var(--dur-fast)] hover:text-fg"
                 >
                   Adatvédelmi tájékoztató
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

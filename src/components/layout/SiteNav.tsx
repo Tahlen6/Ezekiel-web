@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { NAV_ITEMS } from '@/data/content';
 import { ButtonLink } from '@/components/ui/Button';
@@ -15,6 +17,12 @@ export function SiteNav() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  /* The narrative lives on the home page, so its anchors only resolve there.
+     Anywhere else (the privacy notice, 404) they have to navigate home first. */
+  const pathname = usePathname();
+  const onStory = pathname === '/';
+  const anchor = (hash: string) => (onStory ? hash : `/${hash}`);
 
   useEffect(() => {
     // rAF-throttled: scroll handlers must not do layout work per event.
@@ -89,13 +97,13 @@ export function SiteNav() {
         aria-label="Főnavigáció"
         className="container-content flex h-[var(--nav-h)] items-center justify-between gap-6"
       >
-        <a
-          href="#hero"
+        <Link
+          href={onStory ? '#hero' : '/'}
           className="-m-2 flex items-center rounded-md p-2"
           aria-label="Ezekiel — vissza az oldal elejére"
         >
           <Wordmark />
-        </a>
+        </Link>
 
         {/* Desktop */}
         <ul className="hidden items-center gap-1 lg:flex">
@@ -103,8 +111,8 @@ export function SiteNav() {
             const isActive = active === item.href.slice(1);
             return (
               <li key={item.href}>
-                <a
-                  href={item.href}
+                <Link
+                  href={anchor(item.href)}
                   aria-current={isActive ? 'true' : undefined}
                   className={
                     'relative rounded-md px-3 py-2 text-body-sm transition-colors duration-[var(--dur-fast)] ' +
@@ -120,17 +128,17 @@ export function SiteNav() {
                       (isActive ? 'scale-x-100' : 'scale-x-0')
                     }
                   />
-                </a>
+                </Link>
               </li>
             );
           })}
         </ul>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <ButtonLink href="#platform" variant="ghost" arrow className="px-3 text-body-sm">
+          <ButtonLink href={anchor('#platform')} variant="ghost" arrow className="px-3 text-body-sm">
             Az Ezekiel működése
           </ButtonLink>
-          <ButtonLink href="#bemutato" variant="primary">
+          <ButtonLink href={anchor('#bemutato')} variant="primary">
             Bemutatót kérek
           </ButtonLink>
         </div>
@@ -165,22 +173,22 @@ export function SiteNav() {
         <ul className="container-content flex flex-col py-2">
           {NAV_ITEMS.map((item) => (
             <li key={item.href}>
-              <a
-                href={item.href}
+              <Link
+                href={anchor(item.href)}
                 onClick={() => setOpen(false)}
                 className="flex min-h-14 items-center border-b border-line-subtle text-lead text-fg"
               >
                 {item.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
         <div className="container-content flex flex-col gap-3 pb-8 pt-6">
-          <ButtonLink href="#bemutato" variant="primary" size="lg" onClick={() => setOpen(false)}>
+          <ButtonLink href={anchor('#bemutato')} variant="primary" size="lg" onClick={() => setOpen(false)}>
             Bemutatót kérek
           </ButtonLink>
           <ButtonLink
-            href="#platform"
+            href={anchor('#platform')}
             variant="secondary"
             size="lg"
             onClick={() => setOpen(false)}

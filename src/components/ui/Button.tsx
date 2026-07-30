@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react';
 
 type Variant = 'primary' | 'secondary' | 'ghost';
@@ -55,22 +56,29 @@ function Arrow() {
   );
 }
 
+/**
+ * Uses next/link rather than a bare anchor so that absolute hrefs pick up the
+ * configured basePath — the GitHub Pages preview lives under /Ezekiel-web/, and
+ * a hand-written <a href="/..."> would escape it.
+ */
 export function ButtonLink({
   variant = 'primary',
   size = 'md',
   children,
   className = '',
   arrow = false,
+  href = '#',
   ...rest
 }: CommonProps & AnchorHTMLAttributes<HTMLAnchorElement>) {
   return (
-    <a
+    <Link
+      href={href}
       className={`group ${base} ${variants[variant]} ${variant === 'ghost' ? '' : sizes[size]} ${className}`}
       {...rest}
     >
       {children}
       {arrow ? <Arrow /> : null}
-    </a>
+    </Link>
   );
 }
 

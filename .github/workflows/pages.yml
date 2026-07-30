@@ -1,0 +1,60 @@
+name: Deploy preview to GitHub Pages
+
+# Static preview of the site. Pages serves files, not a Node server, so this is a
+# deliberate subset of the real deployment: no route handlers, and the contact
+# form shows the direct e-mail address instead of pretending to submit.
+# The build is also marked noindex so a placeholder preview never gets crawled.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it half-way.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build static export
+        env:
+          EZEKIEL_STATIC_EXPORT: '1'
+          # Derived from the repo so a rename cannot silently break every asset path.
+          EZEKIEL_BASE_PATH: /${{ github.event.repository.name }}
+          NEXT_PUBLIC_STATIC_DEMO: '1'
+          NEXT_PUBLIC_SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+        run: npm run build
+
+      - name: Fail if the export is empty
+        run: test -f out/index.html && test -f out/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
